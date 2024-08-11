@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import TaskInput from './TaskInput'
+import TaskView from './TaskView'
 
 export default function ProjectView({
   isAddingProject,
@@ -35,15 +35,15 @@ export default function ProjectView({
   }
 
   function handleSaveTask(task) {
-    const updatedSelectedProject = selectedProject()
-    updatedSelectedProject.tasks.push({
+    const tempSelectedProject = selectedProject()
+    tempSelectedProject.tasks.push({
       id: Date.now(),
       title: task,
     })
 
     const updatedProjectList = projects.map((project) => {
-      return project.id === updatedSelectedProject.id
-        ? updatedSelectedProject
+      return project.id === tempSelectedProject.id
+        ? tempSelectedProject
         : project
     })
 
@@ -69,6 +69,13 @@ export default function ProjectView({
     })
 
     setProjects(updatedProjectList)
+  }
+
+  function handleDeleteProject(targetProjectId) {
+    const updatedProjects = projects.filter(
+      (project) => project.id != targetProjectId
+    )
+    setProjects(updatedProjects)
   }
 
   function displayAddingProjectView() {
@@ -103,43 +110,20 @@ export default function ProjectView({
     )
   }
 
-  function doesProjectHaveTasks() {
-    return (
-      <>
-        {selectedProject().tasks.length
-          ? displaySavedTasks()
-          : 'This project does not have any tasks yet.'}
-      </>
-    )
-  }
-
-  function displaySavedTasks() {
-    return (
-      <>
-        <ol>
-          {selectedProject().tasks.map((task) => (
-            <li key={task.id}>
-              {task.title}
-              <button onClick={() => handleClearTask(task.id)}>Clear</button>
-            </li>
-          ))}
-        </ol>
-      </>
-    )
-  }
-
   function displaySelectedProjectView() {
     const project = selectedProject()
     return (
       <>
         <h1>{project.title}</h1>
-        <button>Delete</button>
+        <button onClick={() => handleDeleteProject(project.id)}>Delete</button>
         <p>{project.dueDate}</p>
         <p>{project.desc}</p>
         {/* <line></line> */}
-        <h1>Tasks</h1>
-        <TaskInput handleSaveTask={handleSaveTask}></TaskInput>
-        <section>{doesProjectHaveTasks()}</section>
+        <TaskView
+          selectedProject={project}
+          handleClearTask={handleClearTask}
+          handleSaveTask={handleSaveTask}
+        ></TaskView>
       </>
     )
   }

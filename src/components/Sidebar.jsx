@@ -1,9 +1,16 @@
 export default function Sidebar({ projects, setProjects, setIsAddingProject }) {
-  function handleSelectProject(id) {
-    const selectedProject = projects.find((project) => project.id === id)
-    selectedProject.isSelected = true
-    const updatedProjectList = projects.map((project) => {
-      return project.id === selectedProject.id ? selectedProject : project
+  function handleSelectProject(selectedProject) {
+    const tempProjects = projects
+    const tempSelectedProject = selectedProject
+
+    const updatedProjectList = tempProjects.map((project) => {
+      if (project.id === selectedProject.id) {
+        tempSelectedProject.isSelected = true
+        return tempSelectedProject
+      } else {
+        project.isSelected = false
+        return project
+      }
     })
 
     setProjects(updatedProjectList)
@@ -19,7 +26,7 @@ export default function Sidebar({ projects, setProjects, setIsAddingProject }) {
       <button onClick={handleAddingProject}>+ Add Project</button>
       <ol>
         {projects.map((project) => (
-          <li key={project.id} onClick={() => handleSelectProject(project.id)}>
+          <li key={project.id} onClick={() => handleSelectProject(project)}>
             {project.title}
           </li>
         ))}

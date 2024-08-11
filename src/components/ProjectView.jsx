@@ -11,7 +11,9 @@ export default function ProjectView({
   const newProjectDesc = useRef()
   const newProjectDate = useRef()
 
-  const selectedProject = projects.find((project) => project.isSelected)
+  function selectedProject() {
+    return projects.find((project) => project.isSelected)
+  }
 
   function handleCancel() {
     setIsAddingProject(false)
@@ -33,7 +35,7 @@ export default function ProjectView({
   }
 
   function handleSaveTask(task) {
-    const updatedSelectedProject = selectedProject
+    const updatedSelectedProject = selectedProject()
     updatedSelectedProject.tasks.push({
       id: Date.now(),
       title: task,
@@ -53,16 +55,16 @@ export default function ProjectView({
   }
 
   function handleClearTask(targetTaskId) {
-    const updatedSelectedProjectTasks = selectedProject.tasks.filter(
+    const tempSelectedProject = selectedProject()
+    const updatedSelectedProjectTasks = tempSelectedProject.tasks.filter(
       (task) => task.id != targetTaskId
     )
 
-    const updatedSelectedProject = selectedProject
-    updatedSelectedProject.tasks = updatedSelectedProjectTasks
+    tempSelectedProject.tasks = updatedSelectedProjectTasks
 
     const updatedProjectList = projects.map((project) => {
-      return project.id === updatedSelectedProject.id
-        ? updatedSelectedProject
+      return project.id === tempSelectedProject.id
+        ? tempSelectedProject
         : project
     })
 
@@ -104,7 +106,7 @@ export default function ProjectView({
   function doesProjectHaveTasks() {
     return (
       <>
-        {selectedProject.tasks.length
+        {selectedProject().tasks.length
           ? displaySavedTasks()
           : 'This project does not have any tasks yet.'}
       </>
@@ -115,7 +117,7 @@ export default function ProjectView({
     return (
       <>
         <ol>
-          {selectedProject.tasks.map((task) => (
+          {selectedProject().tasks.map((task) => (
             <li key={task.id}>
               {task.title}
               <button onClick={() => handleClearTask(task.id)}>Clear</button>
@@ -127,12 +129,13 @@ export default function ProjectView({
   }
 
   function displaySelectedProjectView() {
+    const project = selectedProject()
     return (
       <>
-        <h1>{selectedProject.title}</h1>
+        <h1>{project.title}</h1>
         <button>Delete</button>
-        <p>{selectedProject.dueDate}</p>
-        <p>{selectedProject.desc}</p>
+        <p>{project.dueDate}</p>
+        <p>{project.desc}</p>
         {/* <line></line> */}
         <h1>Tasks</h1>
         <TaskInput handleSaveTask={handleSaveTask}></TaskInput>
@@ -145,7 +148,7 @@ export default function ProjectView({
     <>
       {isAddingProject
         ? displayAddingProjectView()
-        : selectedProject
+        : selectedProject()
         ? displaySelectedProjectView()
         : displayNoProjectSelectedView()}
     </>
